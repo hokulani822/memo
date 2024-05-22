@@ -7,7 +7,7 @@
 -食事記録ができるアプリ
 
 ## ③DEMO
-- [https://hokulani822.github.io/janken-rich/](https://hokulani822.github.io/janken-richver/)
+- https://hokulani822.github.io/memo/
 
 ## ④作ったアプリケーション用のIDまたはPasswordがある場合
 

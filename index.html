@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>食事記録アプリ</title>
+  <script src="js/jquery-2.1.3.min.js"></script>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <h1>食事記録アプリ</h1>
+
+  <main>
+    <div class="input-area">
+      <input id="date" type="date" placeholder="日付を入力">
+      <select id="meal-time">
+        <option value="" selected disabled>選択してください</option>
+        <option value="breakfast">朝食</option>
+        <option value="lunch">昼食</option>
+        <option value="snack">間食</option>
+        <option value="dinner">夕食</option>
+      </select>
+      <textarea id="food" placeholder="食べたものを入力（例：コーヒー、サンドイッチ、バナナ）"></textarea>
+    </div>
+
+    <div class="button-area">
+      <button id="save">保存</button>
+      <button id="clear">全て削除</button>
+    </div>
+  </main>
+
+  <ul id="list">
+    <!-- ここに追加データが挿入される -->
+  </ul>
+<template id="entry-template">
+  <li>
+    <p class="entry"></p>
+    <button class="delete-btn">削除</button>
+  </li>
+</template>
+
+  <footer>
+    @Hikaru Hirashita
+  </footer>
+
+  <script>
+  const foodData = {
+    "りんご": 52,
+    "バナナ": 89,
+    "チョコレート": 82,
+    "ご飯": 180,
+    "おにぎり": 180,
+    "焼き肉": 350,
+    "サラダ": 25,
+    "パン": 265,
+    "ラーメン": 490,
+    "オムライス": 450,
+    "カレー": 320,
+    "寿司": 50,
+    "うどん": 270,
+    "そば": 300,
+    "ピザ": 250,
+    "ハンバーガー": 295,
+    "ステーキ": 679,
+    "サンドイッチ": 250,
+    "パスタ": 380,
+    "トースト": 75,
+    "ミルク": 42,
+    "ヨーグルト": 59,
+    "はちみつ": 64,
+    "卵": 68,
+    "トマト": 18,
+    "にんじん": 41,
+    "ブロッコリー": 34,
+    "きゅうり": 16,
+    "オレンジ": 47,
+    "いちご": 33,
+    "みかん": 45,
+    "桃": 39,
+    "さくらんぼ": 50,
+    "ぶどう": 69,
+    "キウイ": 61,
+    "マンゴー": 60,
+    "アボカド": 160,
+    "ナッツ": 607,
+    "豆腐": 76,
+    "もやし": 12,
+    "ほうれん草": 23,
+    "枝豆": 121,
+    "かぼちゃ": 26,
+    "しいたけ": 34,
+    "わかめ": 45,
+    "梅干し": 33,
+    "ソーセージ": 301,
+    "ベーコン": 541,
+    "ハム": 145,
+    "チーズ": 402,
+    "アイスクリーム": 207,
+    "アイス": 207,
+    "プリン": 135,
+    "ケーキ": 257,
+    "クッキー": 502,
+    "ポテトチップス": 536,
+    "ポップコーン": 375,
+    "ドーナツ": 452,
+    "カフェラテ": 190,
+    "コーヒー": 2,
+    "紅茶": 2,
+    "ジュース": 50,
+    "ビール": 43,
+    "ワイン": 83,
+    "日本酒": 103,
+    "カルビ": 517,
+    "たまご焼き": 154,
+    "おでん": 92,
+    "そぼろ丼": 520,
+    "親子丼": 700,
+    "天丼": 900,
+    "牛丼": 850,
+    "焼きそば": 220,
+    "シーフードカレー": 600,
+    "キムチ": 15,
+    "パエリア": 300,
+    "ガパオライス": 650,
+    "餃子": 200,
+    "焼き鳥": 230,
+    "シュウマイ": 180,
+    "麻婆豆腐": 350,
+    "炒飯": 540,
+    "スープ": 150,
+    "サラダチキン": 110,
+    "ミートソースパスタ": 450,
+    "カルボナーラ": 550,
+    "グラタン": 420,
+    "ドリア": 480,
+    "シチュー": 370,
+    "ミネストローネ": 140,
+    "かき氷": 80,
+    "シリアル": 110,
+    "ベーグル": 260,
+    "クラッカー": 78,
+    "プレッツェル": 300,
+    "チップス": 500,
+    "サツマイモ": 132,
+    "ズッキーニ": 17,
+    "ビーツ": 43,
+    "ルッコラ": 25,
+    "パプリカ": 31,
+    "白菜": 14,
+    "キャベツ": 25,
+    "レタス": 15,
+    "セロリ": 16,
+    "アスパラガス": 20,
+    "カリフラワー": 25,
+    "カシューナッツ": 553,
+    "アーモンド": 576,
+    "クルミ": 654,
+    "ピスタチオ": 562,
+    "マカダミアナッツ": 718,
+    "ヘーゼルナッツ": 628
+  };
+
+  function calculateTotalCalories(foodList) {
+    let totalCalories = 0;
+    const foodItems = foodList.split(/[\s,、]+/);
+    const matchedFoods = [];
+
+    foodItems.forEach(food => {
+      for (const key in foodData) {
+        if (food.includes(key)) {
+          totalCalories += foodData[key];
+          matchedFoods.push(`${key} (${foodData[key]}カロリー)`);
+          break;
+        }
+      }
+    });
+
+    return {
+      totalCalories,
+      matchedFoods: matchedFoods.join(', ')
+    };
+  }
+
+  //1.Save クリックイベント
+  $("#save").on("click", function() {
+    const date = $("#date").val();
+    const mealTime = $("#meal-time").val();
+    const food = $("#food").val();
+
+    if (!mealTime) {
+      alert("食事のタイミングを選択してください。");
+      return;
+    }
+
+    const { totalCalories, matchedFoods } = calculateTotalCalories(food);
+    if (totalCalories === 0) {
+      alert("入力された食べ物のカロリーがデータベースにありません。");
+      return;
+    }
+
+    const entry = `${date} ${mealTime}: ${matchedFoods}（合計: ${totalCalories}カロリー）`;
+  const key = `${date}_${mealTime}`;
+  localStorage.setItem(key, entry);
+
+  const template = document.getElementById('entry-template');
+  const entryElement = template.content.cloneNode(true);
+  entryElement.querySelector('.entry').textContent = entry;
+  $("#list").append(entryElement);
+
+  $("#date").val("");
+  $("#meal-time").val("");
+  $("#food").val("");
+});
+
+  //2.clear クリックイベント
+  $("#clear").on("click", function() {
+    localStorage.clear();
+    $("#list").empty();
+  });
+
+  //3.ページ読み込み：保存データ取得表示
+  for (let i = 0; i < localStorage.length; i++) {
+  const key = localStorage.key(i);
+  const entry = localStorage.getItem(key);
+  const template = document.getElementById('entry-template');
+  const entryElement = template.content.cloneNode(true);
+  entryElement.querySelector('.entry').textContent = entry;
+  $("#list").append(entryElement);
+}
+
+// 削除ボタンのイベントリスナー
+$('#list').on('click', '.delete-btn', function() {
+  const entryElement = $(this).closest('li');
+  const entry = entryElement.find('.entry').text();
+  const key = Object.keys(localStorage).find(k => localStorage.getItem(k) === entry);
+  if (key) {
+    localStorage.removeItem(key);
+    entryElement.remove();
+  }
+});
+</script>
+</body>
+
+</html>
